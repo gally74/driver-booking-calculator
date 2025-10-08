@@ -212,6 +212,118 @@
             display: none;
         }
 
+        .mode-selector {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #5f6368;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #1a73e8;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: rgba(26, 115, 232, 0.1);
+            color: #1a73e8;
+        }
+
+        .calculator-mode {
+            display: none;
+        }
+
+        .calculator-mode.active {
+            display: block;
+        }
+
+        .duty-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .duty-option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid #dadce0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+
+        .duty-option:hover {
+            border-color: #1a73e8;
+            background: white;
+        }
+
+        .duty-option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .duty-option input[type="radio"]:checked + .duty-label {
+            color: #1a73e8;
+            font-weight: 600;
+        }
+
+        .duty-option:has(input[type="radio"]:checked) {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+        }
+
+        .duty-label {
+            font-size: 1.1em;
+            color: #3c4043;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #dadce0;
+            border-radius: 12px;
+            font-size: 1.3em;
+            transition: all 0.2s ease;
+            background: #fafafa;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 56px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 50px;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-group select:hover {
+            border-color: #1a73e8;
+            background-color: white;
+        }
+
         /* iPhone and mobile optimizations */
         @media (max-width: 768px) {
             body {
@@ -319,10 +431,17 @@
     <div class="calculator-container">
         <div class="header">
             <h1>🚌 Driver Booking Calculator</h1>
-            <p>Enter booking on time and hours worked to calculate booking off time</p>
+            <p>Calculate booking off times and rest periods for driver scheduling</p>
         </div>
 
-        <form id="calculatorForm">
+        <div class="mode-selector">
+            <button id="bookingMode" class="mode-btn active">Booking Off Time</button>
+            <button id="restMode" class="mode-btn">Rest Period</button>
+            <button id="taxiMode" class="mode-btn">Taxi Journey</button>
+        </div>
+
+        <!-- Booking Off Time Mode -->
+        <form id="bookingForm" class="calculator-mode active">
             <div class="form-group">
                 <label for="bookingOnTime">Booking On Time</label>
                 <input type="time" id="bookingOnTime" required>
@@ -345,8 +464,62 @@
             <button type="submit" class="calculate-btn">Calculate Booking Off Time</button>
         </form>
 
+        <!-- Rest Period Mode -->
+        <form id="restForm" class="calculator-mode">
+            <div class="form-group">
+                <label for="nextDayBookingTime">Next Day Booking On Time</label>
+                <input type="time" id="nextDayBookingTime" required>
+            </div>
+
+            <div class="form-group">
+                <label>Driver Duty Type</label>
+                <div class="duty-selector">
+                    <label class="duty-option">
+                        <input type="radio" name="dutyType" value="driving" required>
+                        <span class="duty-label">🚗 Driving Duties (12 hours rest)</span>
+                    </label>
+                    <label class="duty-option">
+                        <input type="radio" name="dutyType" value="non-driving" required>
+                        <span class="duty-label">📋 Non-Driving Duties (9 hours rest)</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calculate Previous Day Booking Off Time</button>
+        </form>
+
+        <!-- Taxi Journey Mode -->
+        <form id="taxiForm" class="calculator-mode">
+            <div class="form-group">
+                <label for="arrivalTime">Required Arrival Time</label>
+                <input type="time" id="arrivalTime" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fromDepot">From Depot</label>
+                <select id="fromDepot" required>
+                    <option value="">Select departure depot</option>
+                    <option value="cork">Cork</option>
+                    <option value="mallow">Mallow</option>
+                    <option value="tralee">Tralee</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="toDepot">To Depot</label>
+                <select id="toDepot" required>
+                    <option value="">Select destination depot</option>
+                    <option value="cork">Cork</option>
+                    <option value="mallow">Mallow</option>
+                    <option value="tralee">Tralee</option>
+                </select>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calculate Taxi & Driver Times</button>
+        </form>
+
         <div id="result" class="result">
-            <h3>Booking Off Time</h3>
+            <h3 id="resultTitle">Booking Off Time</h3>
             <div id="resultTime" class="result-time"></div>
             <div id="resultDetails" class="result-details"></div>
         </div>
@@ -355,7 +528,37 @@
     </div>
 
     <script>
-        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+        // Mode switching
+        document.getElementById('bookingMode').addEventListener('click', function() {
+            switchMode('booking');
+        });
+        
+        document.getElementById('restMode').addEventListener('click', function() {
+            switchMode('rest');
+        });
+        
+        document.getElementById('taxiMode').addEventListener('click', function() {
+            switchMode('taxi');
+        });
+        
+        function switchMode(mode) {
+            // Update buttons
+            document.getElementById('bookingMode').classList.toggle('active', mode === 'booking');
+            document.getElementById('restMode').classList.toggle('active', mode === 'rest');
+            document.getElementById('taxiMode').classList.toggle('active', mode === 'taxi');
+            
+            // Update forms
+            document.getElementById('bookingForm').classList.toggle('active', mode === 'booking');
+            document.getElementById('restForm').classList.toggle('active', mode === 'rest');
+            document.getElementById('taxiForm').classList.toggle('active', mode === 'taxi');
+            
+            // Clear results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        // Booking off time calculation
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const bookingOnTime = document.getElementById('bookingOnTime').value;
@@ -415,6 +618,7 @@
                 }
                 
                 // Display result
+                document.getElementById('resultTitle').textContent = 'Booking Off Time';
                 document.getElementById('resultTime').textContent = bookingOffTime;
                 document.getElementById('resultDetails').innerHTML = `
                     <strong>Started:</strong> ${bookingOnTime}<br>
@@ -428,6 +632,178 @@
             }
         });
         
+        // Rest period calculation
+        document.getElementById('restForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nextDayBookingTime = document.getElementById('nextDayBookingTime').value;
+            const dutyType = document.querySelector('input[name="dutyType"]:checked');
+            
+            // Clear previous results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            // Validation
+            if (!nextDayBookingTime) {
+                showError('Please select next day booking on time');
+                return;
+            }
+            
+            if (!dutyType) {
+                showError('Please select driver duty type');
+                return;
+            }
+            
+            // Calculate previous day booking off time
+            try {
+                const [nextDayHours, nextDayMinutes] = nextDayBookingTime.split(':').map(Number);
+                const nextDayTimeInMinutes = nextDayHours * 60 + nextDayMinutes;
+                
+                // Determine required rest period
+                const restHours = dutyType.value === 'driving' ? 12 : 9;
+                const restMinutes = restHours * 60;
+                
+                // Calculate previous day booking off time
+                const previousDayOffTimeInMinutes = nextDayTimeInMinutes - restMinutes;
+                
+                // Handle day underflow (previous day)
+                const previousDayOffTime = previousDayOffTimeInMinutes < 0 
+                    ? previousDayOffTimeInMinutes + (24 * 60)
+                    : previousDayOffTimeInMinutes;
+                
+                const offHours = Math.floor(previousDayOffTime / 60);
+                const offMinutes = previousDayOffTime % 60;
+                
+                const bookingOffTime = `${offHours.toString().padStart(2, '0')}:${offMinutes.toString().padStart(2, '0')}`;
+                
+                // Determine if it's same day or previous day
+                const isPreviousDay = previousDayOffTimeInMinutes < 0;
+                const dayText = isPreviousDay ? 'previous day' : 'same day';
+                
+                // Display result
+                document.getElementById('resultTitle').textContent = 'Previous Day Booking Off Time';
+                document.getElementById('resultTime').textContent = bookingOffTime;
+                document.getElementById('resultDetails').innerHTML = `
+                    <strong>Next day starts:</strong> ${nextDayBookingTime}<br>
+                    <strong>Duty type:</strong> ${dutyType.value === 'driving' ? '🚗 Driving' : '📋 Non-Driving'}<br>
+                    <strong>Required rest:</strong> ${restHours} hours<br>
+                    <strong>Must finish:</strong> ${dayText} at ${bookingOffTime}
+                `;
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Error calculating rest period. Please check your inputs.');
+            }
+        });
+        
+        // Taxi journey calculation
+        document.getElementById('taxiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const arrivalTime = document.getElementById('arrivalTime').value;
+            const fromDepot = document.getElementById('fromDepot').value;
+            const toDepot = document.getElementById('toDepot').value;
+            
+            // Clear previous results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            // Validation
+            if (!arrivalTime) {
+                showError('Please select required arrival time');
+                return;
+            }
+            
+            if (!fromDepot) {
+                showError('Please select departure depot');
+                return;
+            }
+            
+            if (!toDepot) {
+                showError('Please select destination depot');
+                return;
+            }
+            
+            if (fromDepot === toDepot) {
+                showError('Departure and destination depots cannot be the same');
+                return;
+            }
+            
+            // Calculate journey times
+            try {
+                const journeyTimes = {
+                    'cork-mallow': 30,
+                    'mallow-cork': 30,
+                    'cork-tralee': 90,
+                    'tralee-cork': 90,
+                    'mallow-tralee': 60,
+                    'tralee-mallow': 60
+                };
+                
+                const journeyKey = `${fromDepot}-${toDepot}`;
+                const journeyMinutes = journeyTimes[journeyKey];
+                
+                if (!journeyMinutes) {
+                    showError('Invalid depot combination');
+                    return;
+                }
+                
+                // Calculate times
+                const [arrivalHours, arrivalMinutes] = arrivalTime.split(':').map(Number);
+                const arrivalTimeInMinutes = arrivalHours * 60 + arrivalMinutes;
+                
+                // Taxi booking time (20 minutes before departure)
+                const taxiBookingTimeInMinutes = arrivalTimeInMinutes - journeyMinutes - 20;
+                const taxiBookingHours = Math.floor(taxiBookingTimeInMinutes / 60);
+                const taxiBookingMins = taxiBookingTimeInMinutes % 60;
+                
+                // Handle day underflow
+                const taxiBookingTime = taxiBookingTimeInMinutes < 0 
+                    ? `${(taxiBookingHours + 24).toString().padStart(2, '0')}:${taxiBookingMins.toString().padStart(2, '0')}`
+                    : `${taxiBookingHours.toString().padStart(2, '0')}:${taxiBookingMins.toString().padStart(2, '0')}`;
+                
+                // Driver booking on time (20 minutes before taxi)
+                const driverBookingTimeInMinutes = taxiBookingTimeInMinutes - 20;
+                const driverBookingHours = Math.floor(driverBookingTimeInMinutes / 60);
+                const driverBookingMins = driverBookingTimeInMinutes % 60;
+                
+                // Handle day underflow
+                const driverBookingTime = driverBookingTimeInMinutes < 0 
+                    ? `${(driverBookingHours + 24).toString().padStart(2, '0')}:${driverBookingMins.toString().padStart(2, '0')}`
+                    : `${driverBookingHours.toString().padStart(2, '0')}:${driverBookingMins.toString().padStart(2, '0')}`;
+                
+                // Format depot names
+                const depotNames = {
+                    'cork': 'Cork',
+                    'mallow': 'Mallow',
+                    'tralee': 'Tralee'
+                };
+                
+                const fromDepotName = depotNames[fromDepot];
+                const toDepotName = depotNames[toDepot];
+                
+                // Determine if times are previous day
+                const isPreviousDay = driverBookingTimeInMinutes < 0;
+                const dayText = isPreviousDay ? 'previous day' : 'same day';
+                
+                // Display result
+                document.getElementById('resultTitle').textContent = 'Taxi Journey Times';
+                document.getElementById('resultTime').textContent = driverBookingTime;
+                document.getElementById('resultDetails').innerHTML = `
+                    <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
+                    <strong>Journey time:</strong> ${journeyMinutes} minutes<br>
+                    <strong>Arrival required:</strong> ${arrivalTime}<br><br>
+                    <strong>🚕 Taxi booking time:</strong> ${taxiBookingTime}<br>
+                    <strong>👤 Driver booking on time:</strong> ${driverBookingTime}<br>
+                    <strong>📅 Driver must book on:</strong> ${dayText}
+                `;
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Error calculating taxi journey times. Please check your inputs.');
+            }
+        });
+        
         function showError(message) {
             document.getElementById('error').textContent = message;
             document.getElementById('error').style.display = 'block';
@@ -437,6 +813,8 @@
         const now = new Date();
         const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         document.getElementById('bookingOnTime').value = currentTime;
+        document.getElementById('nextDayBookingTime').value = currentTime;
+        document.getElementById('arrivalTime').value = currentTime;
         
         // Add some nice animations
         document.addEventListener('DOMContentLoaded', function() {
