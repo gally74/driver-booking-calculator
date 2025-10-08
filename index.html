@@ -334,6 +334,7 @@
             <button id="bookingMode" class="mode-btn active">Booking Off</button>
             <button id="restMode" class="mode-btn">Rest Period</button>
             <button id="taxiMode" class="mode-btn">Taxi Journey</button>
+            <button id="departureMode" class="mode-btn">Departure Time</button>
         </div>
 
         <!-- Booking Off Time Mode -->
@@ -414,6 +415,41 @@
             <button type="submit" class="calculate-btn">Calculate Taxi & Driver Times</button>
         </form>
 
+        <!-- Departure Time Mode -->
+        <form id="departureForm" class="calculator-mode">
+            <div class="form-group">
+                <label for="departureTime">Departure Time</label>
+                <input type="time" id="departureTime" required>
+            </div>
+
+            <div class="form-group">
+                <label for="departureFromDepot">From Depot</label>
+                <select id="departureFromDepot" required>
+                    <option value="">Select departure depot</option>
+                    <option value="cork">Cork</option>
+                    <option value="mallow">Mallow</option>
+                    <option value="tralee">Tralee</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="departureToDepot">To Depot</label>
+                <select id="departureToDepot" required>
+                    <option value="">Select destination depot</option>
+                    <option value="cork">Cork</option>
+                    <option value="mallow">Mallow</option>
+                    <option value="tralee">Tralee</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bookingOffMinutes">Booking Off Time (minutes after arrival)</label>
+                <input type="number" id="bookingOffMinutes" min="0" max="60" placeholder="10" value="10" required>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calculate Arrival & Booking Off Time</button>
+        </form>
+
         <div id="result" class="result">
             <h3 id="resultTitle">Booking Off Time</h3>
             <div id="resultTime" class="result-time"></div>
@@ -437,16 +473,22 @@
             switchMode('taxi');
         });
         
+        document.getElementById('departureMode').addEventListener('click', function() {
+            switchMode('departure');
+        });
+        
         function switchMode(mode) {
             // Update buttons
             document.getElementById('bookingMode').classList.toggle('active', mode === 'booking');
             document.getElementById('restMode').classList.toggle('active', mode === 'rest');
             document.getElementById('taxiMode').classList.toggle('active', mode === 'taxi');
+            document.getElementById('departureMode').classList.toggle('active', mode === 'departure');
             
             // Update forms
             document.getElementById('bookingForm').classList.toggle('active', mode === 'booking');
             document.getElementById('restForm').classList.toggle('active', mode === 'rest');
             document.getElementById('taxiForm').classList.toggle('active', mode === 'taxi');
+            document.getElementById('departureForm').classList.toggle('active', mode === 'departure');
             
             // Clear results
             document.getElementById('result').style.display = 'none';
@@ -648,18 +690,21 @@
                 const [arrivalHours, arrivalMinutes] = arrivalTime.split(':').map(Number);
                 const arrivalTimeInMinutes = arrivalHours * 60 + arrivalMinutes;
                 
-                // Taxi booking time (20 minutes before departure)
-                const taxiBookingTimeInMinutes = arrivalTimeInMinutes - journeyMinutes - 20;
-                const taxiBookingHours = Math.floor(taxiBookingTimeInMinutes / 60);
-                const taxiBookingMins = taxiBookingTimeInMinutes % 60;
+                // Taxi departure time (arrival - journey time)
+                const taxiDepartureTimeInMinutes = arrivalTimeInMinutes - journeyMinutes;
+                const taxiDepartureHours = Math.floor(taxiDepartureTimeInMinutes / 60);
+                const taxiDepartureMins = taxiDepartureTimeInMinutes % 60;
                 
                 // Handle day underflow
-                const taxiBookingTime = taxiBookingTimeInMinutes < 0 
-                    ? `${(taxiBookingHours + 24).toString().padStart(2, '0')}:${taxiBookingMins.toString().padStart(2, '0')}`
-                    : `${taxiBookingHours.toString().padStart(2, '0')}:${taxiBookingMins.toString().padStart(2, '0')}`;
+                const taxiDepartureTime = taxiDepartureTimeInMinutes < 0 
+                    ? `${(taxiDepartureHours + 24).toString().padStart(2, '0')}:${taxiDepartureMins.toString().padStart(2, '0')}`
+                    : `${taxiDepartureHours.toString().padStart(2, '0')}:${taxiDepartureMins.toString().padStart(2, '0')}`;
                 
-                // Driver booking on time (20 minutes before taxi)
-                const driverBookingTimeInMinutes = taxiBookingTimeInMinutes - 20;
+                // Taxi booking time (same as departure time)
+                const taxiBookingTime = taxiDepartureTime;
+                
+                // Driver booking on time (20 minutes before taxi departure)
+                const driverBookingTimeInMinutes = taxiDepartureTimeInMinutes - 20;
                 const driverBookingHours = Math.floor(driverBookingTimeInMinutes / 60);
                 const driverBookingMins = driverBookingTimeInMinutes % 60;
                 
@@ -689,7 +734,7 @@
                     <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
                     <strong>Journey time:</strong> ${journeyMinutes} minutes<br>
                     <strong>Arrival required:</strong> ${arrivalTime}<br><br>
-                    <strong>🚕 Taxi booking time:</strong> ${taxiBookingTime}<br>
+                    <strong>🚕 Taxi departure time:</strong> ${taxiDepartureTime}<br>
                     <strong>👤 Driver booking on time:</strong> ${driverBookingTime}<br>
                     <strong>📅 Driver must book on:</strong> ${dayText}
                 `;
@@ -697,6 +742,120 @@
                 
             } catch (error) {
                 showError('Error calculating taxi journey times. Please check your inputs.');
+            }
+        });
+        
+        // Departure time calculation
+        document.getElementById('departureForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const departureTime = document.getElementById('departureTime').value;
+            const fromDepot = document.getElementById('departureFromDepot').value;
+            const toDepot = document.getElementById('departureToDepot').value;
+            const bookingOffMinutes = parseInt(document.getElementById('bookingOffMinutes').value) || 10;
+            
+            // Clear previous results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            // Validation
+            if (!departureTime) {
+                showError('Please select departure time');
+                return;
+            }
+            
+            if (!fromDepot) {
+                showError('Please select departure depot');
+                return;
+            }
+            
+            if (!toDepot) {
+                showError('Please select destination depot');
+                return;
+            }
+            
+            if (fromDepot === toDepot) {
+                showError('Departure and destination depots cannot be the same');
+                return;
+            }
+            
+            if (bookingOffMinutes < 0 || bookingOffMinutes > 60) {
+                showError('Booking off minutes must be between 0 and 60');
+                return;
+            }
+            
+            // Calculate journey times
+            try {
+                const journeyTimes = {
+                    'cork-mallow': 30,
+                    'mallow-cork': 30,
+                    'cork-tralee': 90,
+                    'tralee-cork': 90,
+                    'mallow-tralee': 60,
+                    'tralee-mallow': 60
+                };
+                
+                const journeyKey = `${fromDepot}-${toDepot}`;
+                const journeyMinutes = journeyTimes[journeyKey];
+                
+                if (!journeyMinutes) {
+                    showError('Invalid depot combination');
+                    return;
+                }
+                
+                // Calculate times
+                const [departureHours, departureMinutes] = departureTime.split(':').map(Number);
+                const departureTimeInMinutes = departureHours * 60 + departureMinutes;
+                
+                // Arrival time (departure + journey time)
+                const arrivalTimeInMinutes = departureTimeInMinutes + journeyMinutes;
+                const arrivalHours = Math.floor(arrivalTimeInMinutes / 60);
+                const arrivalMinutes = arrivalTimeInMinutes % 60;
+                
+                // Handle day overflow
+                const arrivalTime = arrivalTimeInMinutes >= (24 * 60)
+                    ? `${(arrivalHours - 24).toString().padStart(2, '0')}:${arrivalMinutes.toString().padStart(2, '0')}`
+                    : `${arrivalHours.toString().padStart(2, '0')}:${arrivalMinutes.toString().padStart(2, '0')}`;
+                
+                // Booking off time (arrival + booking off minutes)
+                const bookingOffTimeInMinutes = arrivalTimeInMinutes + bookingOffMinutes;
+                const bookingOffHours = Math.floor(bookingOffTimeInMinutes / 60);
+                const bookingOffMins = bookingOffTimeInMinutes % 60;
+                
+                // Handle day overflow
+                const bookingOffTime = bookingOffTimeInMinutes >= (24 * 60)
+                    ? `${(bookingOffHours - 24).toString().padStart(2, '0')}:${bookingOffMins.toString().padStart(2, '0')}`
+                    : `${bookingOffHours.toString().padStart(2, '0')}:${bookingOffMins.toString().padStart(2, '0')}`;
+                
+                // Format depot names
+                const depotNames = {
+                    'cork': 'Cork',
+                    'mallow': 'Mallow',
+                    'tralee': 'Tralee'
+                };
+                
+                const fromDepotName = depotNames[fromDepot];
+                const toDepotName = depotNames[toDepot];
+                
+                // Determine if times are next day
+                const isNextDay = arrivalTimeInMinutes >= (24 * 60);
+                const dayText = isNextDay ? 'next day' : 'same day';
+                
+                // Display result
+                document.getElementById('resultTitle').textContent = 'Arrival & Booking Off Times';
+                document.getElementById('resultTime').textContent = bookingOffTime;
+                document.getElementById('resultDetails').innerHTML = `
+                    <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
+                    <strong>Journey time:</strong> ${journeyMinutes} minutes<br>
+                    <strong>Departure time:</strong> ${departureTime}<br><br>
+                    <strong>🚌 Arrival time:</strong> ${arrivalTime}<br>
+                    <strong>👤 Booking off time:</strong> ${bookingOffTime}<br>
+                    <strong>📅 Arrives:</strong> ${dayText}
+                `;
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Error calculating departure times. Please check your inputs.');
             }
         });
         
@@ -711,6 +870,7 @@
         document.getElementById('bookingOnTime').value = currentTime;
         document.getElementById('nextDayBookingTime').value = currentTime;
         document.getElementById('arrivalTime').value = currentTime;
+        document.getElementById('departureTime').value = currentTime;
         
         // Add some nice animations
         document.addEventListener('DOMContentLoaded', function() {
