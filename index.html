@@ -193,18 +193,19 @@
         .duty-selector {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .duty-option {
             display: flex;
             align-items: center;
-            padding: 14px;
+            padding: 16px;
             border: 2px solid #dadce0;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
             background: #fafafa;
+            margin: 0;
         }
 
         .duty-option:hover {
@@ -213,13 +214,18 @@
         }
 
         .duty-option input[type="radio"] {
-            margin-right: 10px;
-            transform: scale(1.2);
+            margin-right: 12px;
+            transform: scale(1.3);
+            flex-shrink: 0;
         }
 
         .duty-option input[type="radio"]:checked + .duty-label {
             color: #1a73e8;
             font-weight: 600;
+        }
+
+        .duty-option input[type="radio"]:checked {
+            accent-color: #1a73e8;
         }
 
         .duty-option:has(input[type="radio"]:checked) {
@@ -228,8 +234,9 @@
         }
 
         .duty-label {
-            font-size: 1em;
+            font-size: 1.1em;
             color: #3c4043;
+            line-height: 1.4;
         }
 
         .calculate-btn {
@@ -724,7 +731,7 @@
                 const dayText = isPreviousDay ? 'previous day' : 'same day';
                 
                 // Display result
-                document.getElementById('resultTitle').textContent = 'Taxi Journey Times';
+                document.getElementById('resultTitle').textContent = 'Booking On Time';
                 document.getElementById('resultTime').textContent = driverBookingTime;
                 document.getElementById('resultDetails').innerHTML = `
                     <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
@@ -834,7 +841,7 @@
                 const dayText = isNextDay ? 'next day' : 'same day';
                 
                 // Display result
-                document.getElementById('resultTitle').textContent = 'Arrival & Booking Off Times';
+                document.getElementById('resultTitle').textContent = 'Booking Off Time';
                 document.getElementById('resultTime').textContent = bookingOffTime;
                 document.getElementById('resultDetails').innerHTML = `
                     <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
