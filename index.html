@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="Driver Booking Time Calculator - Calculate when drivers finish their shifts">
+    <meta name="keywords" content="driver, booking, time, calculator, shift, work hours">
+    <meta name="author" content="Driver Booking Calculator">
+    <title>Driver Booking Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Google Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+
+        .calculator-container {
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 20px;
+            max-width: 100%;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow-y: auto;
+            margin: 0;
+            display: block;
+            clear: both;
+        }
+
+        .calculator-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4285f4, #34a853, #fbbc04, #ea4335);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #1a73e8;
+            font-size: 2.2em;
+            margin-bottom: 12px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+        }
+
+        .header p {
+            color: #5f6368;
+            font-size: 1.1em;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 32px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            color: #3c4043;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #dadce0;
+            border-radius: 12px;
+            font-size: 1.3em;
+            transition: all 0.2s ease;
+            background: #fafafa;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 56px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-group input:hover {
+            border-color: #1a73e8;
+            background: white;
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .time-input-group {
+            text-align: center;
+        }
+
+        .time-input-group input {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+            padding: 20px 10px;
+        }
+
+        .time-input-group label {
+            font-size: 0.9em;
+            color: #5f6368;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+            color: white;
+            border: none;
+            padding: 22px;
+            border-radius: 12px;
+            font-size: 1.4em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 24px;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            min-height: 60px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(26, 115, 232, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f0fe 100%);
+            border: 2px solid #e8f0fe;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 24px;
+            display: none;
+        }
+
+        .result h3 {
+            color: #1a73e8;
+            margin-bottom: 16px;
+            font-size: 1.4em;
+            font-weight: 500;
+        }
+
+        .result-time {
+            font-size: 2.8em;
+            font-weight: 400;
+            color: #1a73e8;
+            margin: 16px 0;
+            letter-spacing: 1px;
+        }
+
+        .result-details {
+            color: #5f6368;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #fce8e6;
+            border: 2px solid #f28b82;
+            color: #d93025;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        /* iPhone and mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                align-items: stretch;
+            }
+            
+            .calculator-container {
+                padding: 16px;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                height: 100vh;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+            }
+            
+            .header h1 {
+                font-size: 1.9em;
+                margin-bottom: 10px;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .form-group {
+                margin-bottom: 24px;
+            }
+            
+            .form-group input {
+                font-size: 1.4em;
+                padding: 20px 16px;
+                min-height: 60px;
+            }
+            
+            .time-input-group input {
+                font-size: 1.6em;
+                padding: 22px 8px;
+            }
+            
+            .calculate-btn {
+                font-size: 1.5em;
+                padding: 24px;
+                min-height: 64px;
+            }
+            
+            .result-time {
+                font-size: 2.4em;
+                margin: 12px 0;
+            }
+            
+            .result-details {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            
+            .calculator-container {
+                padding: 12px;
+                border-radius: 0;
+                height: 100vh;
+            }
+            
+            .header h1 {
+                font-size: 1.7em;
+            }
+            
+            .result-time {
+                font-size: 2.2em;
+            }
+            
+            .time-inputs {
+                gap: 10px;
+            }
+        }
+
+        /* iPhone specific optimizations */
+        @media only screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) {
+            .calculator-container {
+                padding: 16px;
+                height: 100vh;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        @media only screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) {
+            .calculator-container {
+                padding: 18px;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="header">
+            <h1>🚌 Driver Booking Calculator</h1>
+            <p>Enter booking on time and hours worked to calculate booking off time</p>
+        </div>
+
+        <form id="calculatorForm">
+            <div class="form-group">
+                <label for="bookingOnTime">Booking On Time</label>
+                <input type="time" id="bookingOnTime" required>
+            </div>
+
+            <div class="form-group">
+                <label>Hours Worked</label>
+                <div class="time-inputs">
+                    <div class="time-input-group">
+                        <input type="number" id="hoursWorked" min="0" max="23" placeholder="0" required>
+                        <label for="hoursWorked">Hours</label>
+                    </div>
+                    <div class="time-input-group">
+                        <input type="number" id="minutesWorked" min="0" max="59" placeholder="0" required>
+                        <label for="minutesWorked">Minutes</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calculate Booking Off Time</button>
+        </form>
+
+        <div id="result" class="result">
+            <h3>Booking Off Time</h3>
+            <div id="resultTime" class="result-time"></div>
+            <div id="resultDetails" class="result-details"></div>
+        </div>
+
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const bookingOnTime = document.getElementById('bookingOnTime').value;
+            const hoursWorked = parseInt(document.getElementById('hoursWorked').value) || 0;
+            const minutesWorked = parseInt(document.getElementById('minutesWorked').value) || 0;
+            
+            // Clear previous results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            // Validation
+            if (!bookingOnTime) {
+                showError('Please select a booking on time');
+                return;
+            }
+            
+            if (hoursWorked < 0 || hoursWorked > 23) {
+                showError('Hours must be between 0 and 23');
+                return;
+            }
+            
+            if (minutesWorked < 0 || minutesWorked > 59) {
+                showError('Minutes must be between 0 and 59');
+                return;
+            }
+            
+            if (hoursWorked === 0 && minutesWorked === 0) {
+                showError('Please enter at least some hours or minutes');
+                return;
+            }
+            
+            // Calculate booking off time
+            try {
+                const [startHours, startMinutes] = bookingOnTime.split(':').map(Number);
+                const startTimeInMinutes = startHours * 60 + startMinutes;
+                const totalWorkMinutes = hoursWorked * 60 + minutesWorked;
+                const totalMinutes = startTimeInMinutes + totalWorkMinutes;
+                
+                // Handle day overflow
+                const endTimeInMinutes = totalMinutes % (24 * 60);
+                const endHours = Math.floor(endTimeInMinutes / 60);
+                const endMinutes = endTimeInMinutes % 60;
+                
+                const bookingOffTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+                
+                // Calculate if it's next day
+                const isNextDay = totalMinutes >= (24 * 60);
+                
+                // Format work time display
+                let workTimeDisplay = '';
+                if (hoursWorked > 0 && minutesWorked > 0) {
+                    workTimeDisplay = `${hoursWorked} hours ${minutesWorked} minutes`;
+                } else if (hoursWorked > 0) {
+                    workTimeDisplay = `${hoursWorked} hours`;
+                } else {
+                    workTimeDisplay = `${minutesWorked} minutes`;
+                }
+                
+                // Display result
+                document.getElementById('resultTime').textContent = bookingOffTime;
+                document.getElementById('resultDetails').innerHTML = `
+                    <strong>Started:</strong> ${bookingOnTime}<br>
+                    <strong>Worked:</strong> ${workTimeDisplay}<br>
+                    ${isNextDay ? '<span style="color: #d93025; font-weight: 500;">⚠️ Finishes next day</span>' : '<span style="color: #34a853; font-weight: 500;">✅ Finishes same day</span>'}
+                `;
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Error calculating time. Please check your inputs.');
+            }
+        });
+        
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+        }
+        
+        // Set current time as default
+        const now = new Date();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('bookingOnTime').value = currentTime;
+        
+        // Add some nice animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.calculator-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.6s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
