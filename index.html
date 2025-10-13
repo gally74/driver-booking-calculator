@@ -340,7 +340,7 @@
     <div class="calculator-container">
         <div class="header">
             <h1>🚌 Driver Booking Calculator</h1>
-            <p>Calculate booking off times, rest periods, and taxi journeys</p>
+            <p>Calculate booking off times, rest periods, taxi journeys, and overtime</p>
         </div>
 
         <div class="mode-selector">
@@ -348,6 +348,7 @@
             <button id="restMode" class="mode-btn">Rest Period</button>
             <button id="taxiMode" class="mode-btn">Taxi Journey</button>
             <button id="departureMode" class="mode-btn">Departure Time</button>
+            <button id="overtimeMode" class="mode-btn">Overtime</button>
         </div>
 
         <!-- Booking Off Time Mode -->
@@ -459,6 +460,21 @@
             <button type="submit" class="calculate-btn">Calculate Arrival & Booking Off Time</button>
         </form>
 
+        <!-- Overtime Mode -->
+        <form id="overtimeForm" class="calculator-mode">
+            <div class="form-group">
+                <label for="overtimeBookingOn">Booking On Time</label>
+                <input type="time" id="overtimeBookingOn" required>
+            </div>
+
+            <div class="form-group">
+                <label for="overtimeBookingOff">Booking Off Time</label>
+                <input type="time" id="overtimeBookingOff" required>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calculate Overtime</button>
+        </form>
+
         <div id="result" class="result">
             <h3 id="resultTitle">Booking Off Time</h3>
             <div id="resultTime" class="result-time"></div>
@@ -486,18 +502,24 @@
             switchMode('departure');
         });
         
+        document.getElementById('overtimeMode').addEventListener('click', function() {
+            switchMode('overtime');
+        });
+        
         function switchMode(mode) {
             // Update buttons
             document.getElementById('bookingMode').classList.toggle('active', mode === 'booking');
             document.getElementById('restMode').classList.toggle('active', mode === 'rest');
             document.getElementById('taxiMode').classList.toggle('active', mode === 'taxi');
             document.getElementById('departureMode').classList.toggle('active', mode === 'departure');
+            document.getElementById('overtimeMode').classList.toggle('active', mode === 'overtime');
             
             // Update forms
             document.getElementById('bookingForm').classList.toggle('active', mode === 'booking');
             document.getElementById('restForm').classList.toggle('active', mode === 'rest');
             document.getElementById('taxiForm').classList.toggle('active', mode === 'taxi');
             document.getElementById('departureForm').classList.toggle('active', mode === 'departure');
+            document.getElementById('overtimeForm').classList.toggle('active', mode === 'overtime');
             
             // Clear results
             document.getElementById('result').style.display = 'none';
@@ -864,6 +886,111 @@
             }
         });
         
+        // Overtime calculation
+        document.getElementById('overtimeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const bookingOnTime = document.getElementById('overtimeBookingOn').value;
+            const bookingOffTime = document.getElementById('overtimeBookingOff').value;
+            
+            // Clear previous results
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            // Validation
+            if (!bookingOnTime) {
+                showError('Please select booking on time');
+                return;
+            }
+            
+            if (!bookingOffTime) {
+                showError('Please select booking off time');
+                return;
+            }
+            
+            // Calculate overtime
+            try {
+                const [onHours, onMinutes] = bookingOnTime.split(':').map(Number);
+                const [offHours, offMinutes] = bookingOffTime.split(':').map(Number);
+                
+                // Convert to minutes from midnight
+                const onTimeInMinutes = onHours * 60 + onMinutes;
+                const offTimeInMinutes = offHours * 60 + offMinutes;
+                
+                // Calculate total work time
+                let totalWorkMinutes;
+                if (offTimeInMinutes >= onTimeInMinutes) {
+                    // Same day
+                    totalWorkMinutes = offTimeInMinutes - onTimeInMinutes;
+                } else {
+                    // Next day
+                    totalWorkMinutes = (24 * 60) - onTimeInMinutes + offTimeInMinutes;
+                }
+                
+                // Standard working day: 7 hours 48 minutes = 468 minutes
+                const standardWorkMinutes = 7 * 60 + 48; // 468 minutes
+                
+                // Calculate overtime
+                const overtimeMinutes = totalWorkMinutes - standardWorkMinutes;
+                
+                if (overtimeMinutes <= 0) {
+                    // No overtime
+                    const underTimeMinutes = Math.abs(overtimeMinutes);
+                    const underTimeHours = Math.floor(underTimeMinutes / 60);
+                    const underTimeMins = underTimeMinutes % 60;
+                    
+                    let underTimeDisplay = '';
+                    if (underTimeHours > 0 && underTimeMins > 0) {
+                        underTimeDisplay = `${underTimeHours} hours ${underTimeMins} minutes`;
+                    } else if (underTimeHours > 0) {
+                        underTimeDisplay = `${underTimeHours} hours`;
+                    } else {
+                        underTimeDisplay = `${underTimeMins} minutes`;
+                    }
+                    
+                    // Display result
+                    document.getElementById('resultTitle').textContent = 'No Overtime';
+                    document.getElementById('resultTime').textContent = '0:00';
+                    document.getElementById('resultDetails').innerHTML = `
+                        <strong>Booking on:</strong> ${bookingOnTime}<br>
+                        <strong>Booking off:</strong> ${bookingOffTime}<br>
+                        <strong>Total work time:</strong> ${Math.floor(totalWorkMinutes / 60)}:${(totalWorkMinutes % 60).toString().padStart(2, '0')}<br>
+                        <strong>Standard day:</strong> 7:48<br>
+                        <span style="color: #34a853; font-weight: 500;">✅ Under time by ${underTimeDisplay}</span>
+                    `;
+                } else {
+                    // Has overtime
+                    const overtimeHours = Math.floor(overtimeMinutes / 60);
+                    const overtimeMins = overtimeMinutes % 60;
+                    
+                    let overtimeDisplay = '';
+                    if (overtimeHours > 0 && overtimeMins > 0) {
+                        overtimeDisplay = `${overtimeHours} hours ${overtimeMins} minutes`;
+                    } else if (overtimeHours > 0) {
+                        overtimeDisplay = `${overtimeHours} hours`;
+                    } else {
+                        overtimeDisplay = `${overtimeMins} minutes`;
+                    }
+                    
+                    // Display result
+                    document.getElementById('resultTitle').textContent = 'Overtime';
+                    document.getElementById('resultTime').textContent = `${overtimeHours}:${overtimeMins.toString().padStart(2, '0')}`;
+                    document.getElementById('resultDetails').innerHTML = `
+                        <strong>Booking on:</strong> ${bookingOnTime}<br>
+                        <strong>Booking off:</strong> ${bookingOffTime}<br>
+                        <strong>Total work time:</strong> ${Math.floor(totalWorkMinutes / 60)}:${(totalWorkMinutes % 60).toString().padStart(2, '0')}<br>
+                        <strong>Standard day:</strong> 7:48<br>
+                        <span style="color: #d93025; font-weight: 500;">⚠️ Overtime: ${overtimeDisplay}</span>
+                    `;
+                }
+                
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Error calculating overtime. Please check your inputs.');
+            }
+        });
+        
         function showError(message) {
             document.getElementById('error').textContent = message;
             document.getElementById('error').style.display = 'block';
@@ -876,6 +1003,8 @@
         document.getElementById('nextDayBookingTime').value = currentTime;
         document.getElementById('arrivalTime').value = currentTime;
         document.getElementById('departureTime').value = currentTime;
+        document.getElementById('overtimeBookingOn').value = currentTime;
+        document.getElementById('overtimeBookingOff').value = currentTime;
         
         // Add some nice animations
         document.addEventListener('DOMContentLoaded', function() {
