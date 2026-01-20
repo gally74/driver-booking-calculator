@@ -220,7 +220,6 @@
 
     .duty-option input[type="radio"]:checked { accent-color: #1a73e8; }
 
-    /* Replaces :has(...) for better compatibility */
     .duty-option.selected {
       border-color: #1a73e8;
       background: #e8f0fe;
@@ -381,6 +380,7 @@
           <option value="mallow">Mallow</option>
           <option value="tralee">Tralee</option>
           <option value="thurles">Thurles</option>
+          <option value="charleville">Charleville</option>
         </select>
       </div>
 
@@ -392,6 +392,7 @@
           <option value="mallow">Mallow</option>
           <option value="tralee">Tralee</option>
           <option value="thurles">Thurles</option>
+          <option value="charleville">Charleville</option>
         </select>
       </div>
 
@@ -413,6 +414,7 @@
           <option value="mallow">Mallow</option>
           <option value="tralee">Tralee</option>
           <option value="thurles">Thurles</option>
+          <option value="charleville">Charleville</option>
         </select>
       </div>
 
@@ -424,6 +426,7 @@
           <option value="mallow">Mallow</option>
           <option value="tralee">Tralee</option>
           <option value="thurles">Thurles</option>
+          <option value="charleville">Charleville</option>
         </select>
       </div>
 
@@ -504,7 +507,8 @@
       cork: 'Cork',
       mallow: 'Mallow',
       tralee: 'Tralee',
-      thurles: 'Thurles'
+      thurles: 'Thurles',
+      charleville: 'Charleville'
     };
 
     // Journey times in minutes
@@ -522,7 +526,17 @@
       'mallow-thurles': 75,   // 1h 15m
       'thurles-mallow': 75,
       'tralee-thurles': 140,  // 2h 20m
-      'thurles-tralee': 140
+      'thurles-tralee': 140,
+
+      // Charleville routes (per your spec)
+      'cork-charleville': 60,        // 1h 00m
+      'charleville-cork': 60,
+      'mallow-charleville': 30,      // 30m
+      'charleville-mallow': 30,
+      'tralee-charleville': 90,      // 1h 30m
+      'charleville-tralee': 90,
+      'thurles-charleville': 85,     // 1h 25m
+      'charleville-thurles': 85
     };
 
     function getJourneyMinutes(fromDepot, toDepot) {
@@ -620,7 +634,7 @@
       const offM = nextM - (restHours * 60);
 
       const bookingOff = fromMinutes(offM);
-      const dayText = dayOffsetLabel(offM); // will be "previous day" or "same day" in most cases
+      const dayText = dayOffsetLabel(offM);
 
       showResult(
         'Previous Day Booking Off Time',
@@ -651,7 +665,7 @@
       if (fromDepot === toDepot) return showError('Departure and destination depots cannot be the same');
 
       const journeyM = getJourneyMinutes(fromDepot, toDepot);
-      if (!journeyM && journeyM !== 0) return showError('Invalid depot combination');
+      if (journeyM == null) return showError('Invalid depot combination');
 
       const arrivalM = toMinutes(arrivalTime);
       const taxiDepartM = arrivalM - journeyM;
@@ -685,7 +699,7 @@
       const departureTime = document.getElementById('departureTime').value;
       const fromDepot = document.getElementById('departureFromDepot').value;
       const toDepot = document.getElementById('departureToDepot').value;
-      const bookingOffMinutes = 10; // fixed after arrival
+      const bookingOffMinutes = 10;
 
       if (!departureTime) return showError('Please select departure time');
       if (!fromDepot) return showError('Please select departure depot');
@@ -693,7 +707,7 @@
       if (fromDepot === toDepot) return showError('Departure and destination depots cannot be the same');
 
       const journeyM = getJourneyMinutes(fromDepot, toDepot);
-      if (!journeyM && journeyM !== 0) return showError('Invalid depot combination');
+      if (journeyM == null) return showError('Invalid depot combination');
 
       const departM = toMinutes(departureTime);
       const arrivalM = departM + journeyM;
@@ -701,7 +715,6 @@
 
       const arrivalTimeText = fromMinutes(arrivalM);
       const bookingOffText = fromMinutes(bookOffM);
-
       const dayText = dayOffsetLabel(arrivalM);
 
       showResult(
@@ -734,10 +747,8 @@
       const onM = toMinutes(bookingOnTime);
       const offM = toMinutes(bookingOffTime);
 
-      // Work duration in minutes, handling next-day wrap
       const totalWorkM = (offM >= onM) ? (offM - onM) : (MINUTES_PER_DAY - onM + offM);
 
-      // Standard working day: 7:48 = 468 minutes
       const standardM = 7 * 60 + 48;
       const overtimeM = totalWorkM - standardM;
 
