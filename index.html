@@ -1,1023 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="description" content="Driver Booking Time Calculator - Calculate when drivers finish their shifts">
-    <meta name="keywords" content="driver, booking, time, calculator, shift, work hours">
-    <meta name="author" content="Driver Booking Calculator">
-    <title>Driver Booking Calculator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="description" content="Driver Booking Time Calculator - Calculate when drivers finish their shifts" />
+  <meta name="keywords" content="driver, booking, time, calculator, shift, work hours" />
+  <meta name="author" content="Driver Booking Calculator" />
+  <title>Driver Booking Calculator</title>
 
-        html, body {
-            height: 100%;
-            overflow-x: hidden;
-        }
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Google Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow: hidden;
-        }
+    html, body { height: 100%; overflow-x: hidden; }
 
-        .calculator-container {
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            padding: 20px;
-            max-width: 100%;
-            width: 100%;
-            height: 100vh;
-            position: relative;
-            overflow-y: auto;
-            margin: 0;
-            display: block;
-            clear: both;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Google Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+    }
 
-        .calculator-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #4285f4, #34a853, #fbbc04, #ea4335);
-        }
+    .calculator-container {
+      background: white;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 20px;
+      max-width: 100%;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      overflow-y: auto;
+      margin: 0;
+      display: block;
+      clear: both;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    .calculator-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4285f4, #34a853, #fbbc04, #ea4335);
+    }
 
-        .header h1 {
-            color: #1a73e8;
-            font-size: 2.2em;
-            margin-bottom: 12px;
-            font-weight: 500;
-            letter-spacing: -0.3px;
-        }
+    .header { text-align: center; margin-bottom: 30px; }
 
-        .header p {
-            color: #5f6368;
-            font-size: 1.1em;
-            font-weight: 400;
-            line-height: 1.4;
-        }
+    .header h1 {
+      color: #1a73e8;
+      font-size: 2.2em;
+      margin-bottom: 12px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+    }
 
-        .mode-selector {
-            display: flex;
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 4px;
-        }
+    .header p {
+      color: #5f6368;
+      font-size: 1.1em;
+      font-weight: 400;
+      line-height: 1.4;
+    }
 
-        .mode-btn {
-            flex: 1;
-            padding: 12px 8px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #5f6368;
-        }
+    .mode-selector {
+      display: flex;
+      margin-bottom: 30px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
 
-        .mode-btn.active {
-            background: white;
-            color: #1a73e8;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    .mode-btn {
+      flex: 1 1 140px;
+      padding: 12px 8px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #5f6368;
+    }
 
-        .mode-btn:hover:not(.active) {
-            background: rgba(26, 115, 232, 0.1);
-            color: #1a73e8;
-        }
+    .mode-btn.active {
+      background: white;
+      color: #1a73e8;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-        .calculator-mode {
-            display: none;
-        }
+    .mode-btn:hover:not(.active) {
+      background: rgba(26, 115, 232, 0.1);
+      color: #1a73e8;
+    }
 
-        .calculator-mode.active {
-            display: block;
-        }
+    .calculator-mode { display: none; }
+    .calculator-mode.active { display: block; }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
+    .form-group { margin-bottom: 25px; }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #3c4043;
-            font-weight: 500;
-            font-size: 1.1em;
-        }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #3c4043;
+      font-weight: 500;
+      font-size: 1.1em;
+    }
 
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #dadce0;
-            border-radius: 12px;
-            font-size: 1.2em;
-            transition: all 0.2s ease;
-            background: #fafafa;
-            -webkit-appearance: none;
-            appearance: none;
-            min-height: 56px;
-        }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #dadce0;
+      border-radius: 12px;
+      font-size: 1.2em;
+      transition: all 0.2s ease;
+      background: #fafafa;
+      -webkit-appearance: none;
+      appearance: none;
+      min-height: 56px;
+    }
 
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #1a73e8;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
-        }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #1a73e8;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+    }
 
-        .form-group input:hover, .form-group select:hover {
-            border-color: #1a73e8;
-            background: white;
-        }
+    .form-group input:hover, .form-group select:hover {
+      border-color: #1a73e8;
+      background: white;
+    }
 
-        .form-group select {
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 50px;
-        }
+    .form-group select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 20px;
+      padding-right: 50px;
+    }
 
-        .time-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+    .time-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
 
-        .time-input-group {
-            text-align: center;
-        }
+    .time-input-group { text-align: center; }
 
-        .time-input-group input {
-            text-align: center;
-            font-size: 1.4em;
-            font-weight: 600;
-            padding: 18px 10px;
-        }
+    .time-input-group input {
+      text-align: center;
+      font-size: 1.4em;
+      font-weight: 600;
+      padding: 18px 10px;
+    }
 
-        .time-input-group label {
-            font-size: 0.9em;
-            color: #5f6368;
-            margin-top: 6px;
-            display: block;
-        }
+    .time-input-group label {
+      font-size: 0.9em;
+      color: #5f6368;
+      margin-top: 6px;
+      display: block;
+    }
 
-        .duty-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+    .duty-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-        .duty-option {
-            display: block;
-            padding: 16px;
-            border: 2px solid #dadce0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: #fafafa;
-            margin: 0;
-            position: relative;
-        }
+    .duty-option {
+      display: block;
+      padding: 16px;
+      border: 2px solid #dadce0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fafafa;
+      margin: 0;
+      position: relative;
+    }
 
-        .duty-option:hover {
-            border-color: #1a73e8;
-            background: white;
-        }
+    .duty-option:hover {
+      border-color: #1a73e8;
+      background: white;
+    }
 
-        .duty-option input[type="radio"] {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            margin: 0;
-            width: 20px;
-            height: 20px;
-        }
+    .duty-option input[type="radio"] {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      margin: 0;
+      width: 20px;
+      height: 20px;
+    }
 
-        .duty-label {
-            font-size: 1.1em;
-            color: #3c4043;
-            line-height: 1.4;
-            margin-left: 40px;
-            display: block;
-        }
+    .duty-label {
+      font-size: 1.1em;
+      color: #3c4043;
+      line-height: 1.4;
+      margin-left: 40px;
+      display: block;
+    }
 
-        .duty-option input[type="radio"]:checked + .duty-label {
-            color: #1a73e8;
-            font-weight: 600;
-        }
+    .duty-option input[type="radio"]:checked + .duty-label {
+      color: #1a73e8;
+      font-weight: 600;
+    }
 
-        .duty-option input[type="radio"]:checked {
-            accent-color: #1a73e8;
-        }
+    .duty-option input[type="radio"]:checked { accent-color: #1a73e8; }
 
-        .duty-option:has(input[type="radio"]:checked) {
-            border-color: #1a73e8;
-            background: #e8f0fe;
-        }
+    /* Replaces :has(...) for better compatibility */
+    .duty-option.selected {
+      border-color: #1a73e8;
+      background: #e8f0fe;
+    }
 
-        .calculate-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            font-size: 1.3em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 20px;
-            text-transform: none;
-            letter-spacing: 0.3px;
-            min-height: 56px;
-            -webkit-tap-highlight-color: transparent;
-        }
+    .calculate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 12px;
+      font-size: 1.3em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+      text-transform: none;
+      letter-spacing: 0.3px;
+      min-height: 56px;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
-        }
+    .calculate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+    }
 
-        .calculate-btn:active {
-            transform: translateY(0);
-        }
+    .calculate-btn:active { transform: translateY(0); }
 
-        .result {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e8f0fe 100%);
-            border: 2px solid #e8f0fe;
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
-        }
+    .result {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e8f0fe 100%);
+      border: 2px solid #e8f0fe;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
 
-        .result h3 {
-            color: #1a73e8;
-            margin-bottom: 12px;
-            font-size: 1.3em;
-            font-weight: 500;
-        }
+    .result h3 {
+      color: #1a73e8;
+      margin-bottom: 12px;
+      font-size: 1.3em;
+      font-weight: 500;
+    }
 
-        .result-time {
-            font-size: 2.4em;
-            font-weight: 400;
-            color: #1a73e8;
-            margin: 12px 0;
-            letter-spacing: 1px;
-        }
+    .result-time {
+      font-size: 2.4em;
+      font-weight: 400;
+      color: #1a73e8;
+      margin: 12px 0;
+      letter-spacing: 1px;
+    }
 
-        .result-details {
-            color: #5f6368;
-            font-size: 1em;
-            line-height: 1.5;
-        }
+    .result-details {
+      color: #5f6368;
+      font-size: 1em;
+      line-height: 1.5;
+    }
 
-        .error {
-            background: #fce8e6;
-            border: 2px solid #f28b82;
-            color: #d93025;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-            text-align: center;
-            font-weight: 500;
-            display: none;
-        }
+    .error {
+      background: #fce8e6;
+      border: 2px solid #f28b82;
+      color: #d93025;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 16px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
 
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            .calculator-container {
-                padding: 16px;
-            }
-            
-            .header h1 {
-                font-size: 1.8em;
-            }
-            
-            .mode-btn {
-                padding: 10px 6px;
-                font-size: 0.9em;
-            }
-            
-            .result-time {
-                font-size: 2em;
-            }
-        }
-    </style>
+    @media (max-width: 768px) {
+      .calculator-container { padding: 16px; }
+      .header h1 { font-size: 1.8em; }
+      .mode-btn { padding: 10px 6px; font-size: 0.9em; }
+      .result-time { font-size: 2em; }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="calculator-container">
-        <div class="header">
-            <h1>🚌 Driver Booking Calculator</h1>
-            <p>Calculate booking off times, rest periods, taxi journeys, and overtime</p>
-        </div>
-
-        <div class="mode-selector">
-            <button id="bookingMode" class="mode-btn active">Booking Off</button>
-            <button id="restMode" class="mode-btn">Rest Period</button>
-            <button id="taxiMode" class="mode-btn">Taxi Journey</button>
-            <button id="departureMode" class="mode-btn">Departure Time</button>
-            <button id="overtimeMode" class="mode-btn">Overtime</button>
-        </div>
-
-        <!-- Booking Off Time Mode -->
-        <form id="bookingForm" class="calculator-mode active">
-            <div class="form-group">
-                <label for="bookingOnTime">Booking On Time</label>
-                <input type="time" id="bookingOnTime" required>
-            </div>
-
-            <div class="form-group">
-                <label>Hours Worked</label>
-                <div class="time-inputs">
-                    <div class="time-input-group">
-                        <input type="number" id="hoursWorked" min="0" max="23" placeholder="0" required>
-                        <label for="hoursWorked">Hours</label>
-                    </div>
-                    <div class="time-input-group">
-                        <input type="number" id="minutesWorked" min="0" max="59" placeholder="0" required>
-                        <label for="minutesWorked">Minutes</label>
-                    </div>
-                </div>
-            </div>
-
-            <button type="submit" class="calculate-btn">Calculate Booking Off Time</button>
-        </form>
-
-        <!-- Rest Period Mode -->
-        <form id="restForm" class="calculator-mode">
-            <div class="form-group">
-                <label for="nextDayBookingTime">Next Day Booking On Time</label>
-                <input type="time" id="nextDayBookingTime" required>
-            </div>
-
-            <div class="form-group">
-                <label>Driver Duty Type</label>
-                <div class="duty-selector">
-                    <label class="duty-option">
-                        <input type="radio" name="dutyType" value="driving" required>
-                        <span class="duty-label">🚗 Driving Duties (12 hours rest)</span>
-                    </label>
-                    <label class="duty-option">
-                        <input type="radio" name="dutyType" value="non-driving" required>
-                        <span class="duty-label">📋 Non-Driving Duties (9 hours rest)</span>
-                    </label>
-                </div>
-            </div>
-
-            <button type="submit" class="calculate-btn">Calculate Previous Day Booking Off Time</button>
-        </form>
-
-        <!-- Taxi Journey Mode -->
-        <form id="taxiForm" class="calculator-mode">
-            <div class="form-group">
-                <label for="arrivalTime">Required Arrival Time</label>
-                <input type="time" id="arrivalTime" required>
-            </div>
-
-            <div class="form-group">
-                <label for="fromDepot">From Depot</label>
-                <select id="fromDepot" required>
-                    <option value="">Select departure depot</option>
-                    <option value="cork">Cork</option>
-                    <option value="mallow">Mallow</option>
-                    <option value="tralee">Tralee</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="toDepot">To Depot</label>
-                <select id="toDepot" required>
-                    <option value="">Select destination depot</option>
-                    <option value="cork">Cork</option>
-                    <option value="mallow">Mallow</option>
-                    <option value="tralee">Tralee</option>
-                </select>
-            </div>
-
-            <button type="submit" class="calculate-btn">Calculate Taxi & Driver Times</button>
-        </form>
-
-        <!-- Departure Time Mode -->
-        <form id="departureForm" class="calculator-mode">
-            <div class="form-group">
-                <label for="departureTime">Departure Time</label>
-                <input type="time" id="departureTime" required>
-            </div>
-
-            <div class="form-group">
-                <label for="departureFromDepot">From Depot</label>
-                <select id="departureFromDepot" required>
-                    <option value="">Select departure depot</option>
-                    <option value="cork">Cork</option>
-                    <option value="mallow">Mallow</option>
-                    <option value="tralee">Tralee</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="departureToDepot">To Depot</label>
-                <select id="departureToDepot" required>
-                    <option value="">Select destination depot</option>
-                    <option value="cork">Cork</option>
-                    <option value="mallow">Mallow</option>
-                    <option value="tralee">Tralee</option>
-                </select>
-            </div>
-
-
-            <button type="submit" class="calculate-btn">Calculate Arrival & Booking Off Time</button>
-        </form>
-
-        <!-- Overtime Mode -->
-        <form id="overtimeForm" class="calculator-mode">
-            <div class="form-group">
-                <label for="overtimeBookingOn">Booking On Time</label>
-                <input type="time" id="overtimeBookingOn" required>
-            </div>
-
-            <div class="form-group">
-                <label for="overtimeBookingOff">Booking Off Time</label>
-                <input type="time" id="overtimeBookingOff" required>
-            </div>
-
-            <button type="submit" class="calculate-btn">Calculate Overtime</button>
-        </form>
-
-        <div id="result" class="result">
-            <h3 id="resultTitle">Booking Off Time</h3>
-            <div id="resultTime" class="result-time"></div>
-            <div id="resultDetails" class="result-details"></div>
-        </div>
-
-        <div id="error" class="error"></div>
+  <div class="calculator-container">
+    <div class="header">
+      <h1>🚌 Driver Booking Calculator</h1>
+      <p>Calculate booking off times, rest periods, taxi journeys, and overtime</p>
     </div>
 
-    <script>
-        // Mode switching
-        document.getElementById('bookingMode').addEventListener('click', function() {
-            switchMode('booking');
-        });
-        
-        document.getElementById('restMode').addEventListener('click', function() {
-            switchMode('rest');
-        });
-        
-        document.getElementById('taxiMode').addEventListener('click', function() {
-            switchMode('taxi');
-        });
-        
-        document.getElementById('departureMode').addEventListener('click', function() {
-            switchMode('departure');
-        });
-        
-        document.getElementById('overtimeMode').addEventListener('click', function() {
-            switchMode('overtime');
-        });
-        
-        function switchMode(mode) {
-            // Update buttons
-            document.getElementById('bookingMode').classList.toggle('active', mode === 'booking');
-            document.getElementById('restMode').classList.toggle('active', mode === 'rest');
-            document.getElementById('taxiMode').classList.toggle('active', mode === 'taxi');
-            document.getElementById('departureMode').classList.toggle('active', mode === 'departure');
-            document.getElementById('overtimeMode').classList.toggle('active', mode === 'overtime');
-            
-            // Update forms
-            document.getElementById('bookingForm').classList.toggle('active', mode === 'booking');
-            document.getElementById('restForm').classList.toggle('active', mode === 'rest');
-            document.getElementById('taxiForm').classList.toggle('active', mode === 'taxi');
-            document.getElementById('departureForm').classList.toggle('active', mode === 'departure');
-            document.getElementById('overtimeForm').classList.toggle('active', mode === 'overtime');
-            
-            // Clear results
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-        }
-        
-        // Booking off time calculation
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const bookingOnTime = document.getElementById('bookingOnTime').value;
-            const hoursWorked = parseInt(document.getElementById('hoursWorked').value) || 0;
-            const minutesWorked = parseInt(document.getElementById('minutesWorked').value) || 0;
-            
-            // Clear previous results
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            
-            // Validation
-            if (!bookingOnTime) {
-                showError('Please select a booking on time');
-                return;
-            }
-            
-            if (hoursWorked < 0 || hoursWorked > 23) {
-                showError('Hours must be between 0 and 23');
-                return;
-            }
-            
-            if (minutesWorked < 0 || minutesWorked > 59) {
-                showError('Minutes must be between 0 and 59');
-                return;
-            }
-            
-            if (hoursWorked === 0 && minutesWorked === 0) {
-                showError('Please enter at least some hours or minutes');
-                return;
-            }
-            
-            // Calculate booking off time
-            try {
-                const [startHours, startMinutes] = bookingOnTime.split(':').map(Number);
-                const startTimeInMinutes = startHours * 60 + startMinutes;
-                const totalWorkMinutes = hoursWorked * 60 + minutesWorked;
-                const totalMinutes = startTimeInMinutes + totalWorkMinutes;
-                
-                // Handle day overflow
-                const endTimeInMinutes = totalMinutes % (24 * 60);
-                const endHours = Math.floor(endTimeInMinutes / 60);
-                const endMinutes = endTimeInMinutes % 60;
-                
-                const bookingOffTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-                
-                // Calculate if it's next day
-                const isNextDay = totalMinutes >= (24 * 60);
-                
-                // Format work time display
-                let workTimeDisplay = '';
-                if (hoursWorked > 0 && minutesWorked > 0) {
-                    workTimeDisplay = `${hoursWorked} hours ${minutesWorked} minutes`;
-                } else if (hoursWorked > 0) {
-                    workTimeDisplay = `${hoursWorked} hours`;
-                } else {
-                    workTimeDisplay = `${minutesWorked} minutes`;
-                }
-                
-                // Display result
-                document.getElementById('resultTitle').textContent = 'Booking Off Time';
-                document.getElementById('resultTime').textContent = bookingOffTime;
-                document.getElementById('resultDetails').innerHTML = `
-                    <strong>Started:</strong> ${bookingOnTime}<br>
-                    <strong>Worked:</strong> ${workTimeDisplay}<br>
-                    ${isNextDay ? '<span style="color: #d93025; font-weight: 500;">⚠️ Finishes next day</span>' : '<span style="color: #34a853; font-weight: 500;">✅ Finishes same day</span>'}
-                `;
-                document.getElementById('result').style.display = 'block';
-                
-            } catch (error) {
-                showError('Error calculating time. Please check your inputs.');
-            }
-        });
-        
-        // Rest period calculation
-        document.getElementById('restForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const nextDayBookingTime = document.getElementById('nextDayBookingTime').value;
-            const dutyType = document.querySelector('input[name="dutyType"]:checked');
-            
-            // Clear previous results
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            
-            // Validation
-            if (!nextDayBookingTime) {
-                showError('Please select next day booking on time');
-                return;
-            }
-            
-            if (!dutyType) {
-                showError('Please select driver duty type');
-                return;
-            }
-            
-            // Calculate previous day booking off time
-            try {
-                const [nextDayHours, nextDayMinutes] = nextDayBookingTime.split(':').map(Number);
-                const nextDayTimeInMinutes = nextDayHours * 60 + nextDayMinutes;
-                
-                // Determine required rest period
-                const restHours = dutyType.value === 'driving' ? 12 : 9;
-                const restMinutes = restHours * 60;
-                
-                // Calculate previous day booking off time
-                const previousDayOffTimeInMinutes = nextDayTimeInMinutes - restMinutes;
-                
-                // Handle day underflow (previous day)
-                const previousDayOffTime = previousDayOffTimeInMinutes < 0 
-                    ? previousDayOffTimeInMinutes + (24 * 60)
-                    : previousDayOffTimeInMinutes;
-                
-                const offHours = Math.floor(previousDayOffTime / 60);
-                const offMinutes = previousDayOffTime % 60;
-                
-                const bookingOffTime = `${offHours.toString().padStart(2, '0')}:${offMinutes.toString().padStart(2, '0')}`;
-                
-                // Determine if it's same day or previous day
-                const isPreviousDay = previousDayOffTimeInMinutes < 0;
-                const dayText = isPreviousDay ? 'previous day' : 'same day';
-                
-                // Display result
-                document.getElementById('resultTitle').textContent = 'Previous Day Booking Off Time';
-                document.getElementById('resultTime').textContent = bookingOffTime;
-                document.getElementById('resultDetails').innerHTML = `
-                    <strong>Next day starts:</strong> ${nextDayBookingTime}<br>
-                    <strong>Duty type:</strong> ${dutyType.value === 'driving' ? '🚗 Driving' : '📋 Non-Driving'}<br>
-                    <strong>Required rest:</strong> ${restHours} hours<br>
-                    <strong>Must finish:</strong> ${dayText} at ${bookingOffTime}
-                `;
-                document.getElementById('result').style.display = 'block';
-                
-            } catch (error) {
-                showError('Error calculating rest period. Please check your inputs.');
-            }
-        });
-        
-        // Taxi journey calculation
-        document.getElementById('taxiForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const arrivalTime = document.getElementById('arrivalTime').value;
-            const fromDepot = document.getElementById('fromDepot').value;
-            const toDepot = document.getElementById('toDepot').value;
-            
-            // Clear previous results
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            
-            // Validation
-            if (!arrivalTime) {
-                showError('Please select required arrival time');
-                return;
-            }
-            
-            if (!fromDepot) {
-                showError('Please select departure depot');
-                return;
-            }
-            
-            if (!toDepot) {
-                showError('Please select destination depot');
-                return;
-            }
-            
-            if (fromDepot === toDepot) {
-                showError('Departure and destination depots cannot be the same');
-                return;
-            }
-            
-            // Calculate journey times
-            try {
-                const journeyTimes = {
-                    'cork-mallow': 30,
-                    'mallow-cork': 30,
-                    'cork-tralee': 90,
-                    'tralee-cork': 90,
-                    'mallow-tralee': 60,
-                    'tralee-mallow': 60
-                };
-                
-                const journeyKey = `${fromDepot}-${toDepot}`;
-                const journeyMinutes = journeyTimes[journeyKey];
-                
-                if (!journeyMinutes) {
-                    showError('Invalid depot combination');
-                    return;
-                }
-                
-                // Calculate times
-                const [arrivalHours, arrivalMinutes] = arrivalTime.split(':').map(Number);
-                const arrivalTimeInMinutes = arrivalHours * 60 + arrivalMinutes;
-                
-                // Taxi departure time (arrival - journey time)
-                const taxiDepartureTimeInMinutes = arrivalTimeInMinutes - journeyMinutes;
-                const taxiDepartureHours = Math.floor(taxiDepartureTimeInMinutes / 60);
-                const taxiDepartureMins = taxiDepartureTimeInMinutes % 60;
-                
-                // Handle day underflow
-                const taxiDepartureTime = taxiDepartureTimeInMinutes < 0 
-                    ? `${(taxiDepartureHours + 24).toString().padStart(2, '0')}:${taxiDepartureMins.toString().padStart(2, '0')}`
-                    : `${taxiDepartureHours.toString().padStart(2, '0')}:${taxiDepartureMins.toString().padStart(2, '0')}`;
-                
-                // Taxi booking time (same as departure time)
-                const taxiBookingTime = taxiDepartureTime;
-                
-                // Driver booking on time (20 minutes before taxi departure)
-                const driverBookingTimeInMinutes = taxiDepartureTimeInMinutes - 20;
-                const driverBookingHours = Math.floor(driverBookingTimeInMinutes / 60);
-                const driverBookingMins = driverBookingTimeInMinutes % 60;
-                
-                // Handle day underflow
-                const driverBookingTime = driverBookingTimeInMinutes < 0 
-                    ? `${(driverBookingHours + 24).toString().padStart(2, '0')}:${driverBookingMins.toString().padStart(2, '0')}`
-                    : `${driverBookingHours.toString().padStart(2, '0')}:${driverBookingMins.toString().padStart(2, '0')}`;
-                
-                // Format depot names
-                const depotNames = {
-                    'cork': 'Cork',
-                    'mallow': 'Mallow',
-                    'tralee': 'Tralee'
-                };
-                
-                const fromDepotName = depotNames[fromDepot];
-                const toDepotName = depotNames[toDepot];
-                
-                // Determine if times are previous day
-                const isPreviousDay = driverBookingTimeInMinutes < 0;
-                const dayText = isPreviousDay ? 'previous day' : 'same day';
-                
-                // Display result
-                document.getElementById('resultTitle').textContent = 'Booking On Time';
-                document.getElementById('resultTime').textContent = driverBookingTime;
-                document.getElementById('resultDetails').innerHTML = `
-                    <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
-                    <strong>Journey time:</strong> ${journeyMinutes} minutes<br>
-                    <strong>Arrival required:</strong> ${arrivalTime}<br><br>
-                    <strong>🚕 Taxi booking time is:</strong> ${taxiDepartureTime}<br>
-                    <strong>👤 Driver booking on time is:</strong> ${driverBookingTime}<br>
-                    <strong>📅 Driver must book on:</strong> ${dayText}
-                `;
-                document.getElementById('result').style.display = 'block';
-                
-            } catch (error) {
-                showError('Error calculating taxi journey times. Please check your inputs.');
-            }
-        });
-        
-        // Departure time calculation
-        document.getElementById('departureForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const departureTime = document.getElementById('departureTime').value;
-            const fromDepot = document.getElementById('departureFromDepot').value;
-            const toDepot = document.getElementById('departureToDepot').value;
-            const bookingOffMinutes = 10; // Fixed at 10 minutes after arrival
-            
-            // Clear previous results
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            
-            // Validation
-            if (!departureTime) {
-                showError('Please select departure time');
-                return;
-            }
-            
-            if (!fromDepot) {
-                showError('Please select departure depot');
-                return;
-            }
-            
-            if (!toDepot) {
-                showError('Please select destination depot');
-                return;
-            }
-            
-            if (fromDepot === toDepot) {
-                showError('Departure and destination depots cannot be the same');
-                return;
-            }
-            
-            
-            // Calculate journey times
-            try {
-                const journeyTimes = {
-                    'cork-mallow': 30,
-                    'mallow-cork': 30,
-                    'cork-tralee': 90,
-                    'tralee-cork': 90,
-                    'mallow-tralee': 60,
-                    'tralee-mallow': 60
-                };
-                
-                const journeyKey = `${fromDepot}-${toDepot}`;
-                const journeyMinutes = journeyTimes[journeyKey];
-                
-                if (!journeyMinutes) {
-                    showError('Invalid depot combination');
-                    return;
-                }
-                
-                // Calculate times
-                const [departureHours, departureMinutes] = departureTime.split(':').map(Number);
-                const departureTimeInMinutes = departureHours * 60 + departureMinutes;
-                
-                // Arrival time (departure + journey time)
-                const arrivalTimeInMinutes = departureTimeInMinutes + journeyMinutes;
-                const arrivalHours = Math.floor(arrivalTimeInMinutes / 60);
-                const arrivalMinutes = arrivalTimeInMinutes % 60;
-                
-                // Handle day overflow
-                const arrivalTime = arrivalTimeInMinutes >= (24 * 60)
-                    ? `${(arrivalHours - 24).toString().padStart(2, '0')}:${arrivalMinutes.toString().padStart(2, '0')}`
-                    : `${arrivalHours.toString().padStart(2, '0')}:${arrivalMinutes.toString().padStart(2, '0')}`;
-                
-                // Booking off time (arrival + booking off minutes)
-                const bookingOffTimeInMinutes = arrivalTimeInMinutes + bookingOffMinutes;
-                const bookingOffHours = Math.floor(bookingOffTimeInMinutes / 60);
-                const bookingOffMins = bookingOffTimeInMinutes % 60;
-                
-                // Handle day overflow
-                const bookingOffTime = bookingOffTimeInMinutes >= (24 * 60)
-                    ? `${(bookingOffHours - 24).toString().padStart(2, '0')}:${bookingOffMins.toString().padStart(2, '0')}`
-                    : `${bookingOffHours.toString().padStart(2, '0')}:${bookingOffMins.toString().padStart(2, '0')}`;
-                
-                // Format depot names
-                const depotNames = {
-                    'cork': 'Cork',
-                    'mallow': 'Mallow',
-                    'tralee': 'Tralee'
-                };
-                
-                const fromDepotName = depotNames[fromDepot];
-                const toDepotName = depotNames[toDepot];
-                
-                // Determine if times are next day
-                const isNextDay = arrivalTimeInMinutes >= (24 * 60);
-                const dayText = isNextDay ? 'next day' : 'same day';
-                
-                // Display result
-                document.getElementById('resultTitle').textContent = 'Booking Off Time';
-                document.getElementById('resultTime').textContent = bookingOffTime;
-                document.getElementById('resultDetails').innerHTML = `
-                    <strong>Route:</strong> ${fromDepotName} → ${toDepotName}<br>
-                    <strong>Journey time:</strong> ${journeyMinutes} minutes<br>
-                    <strong>Departure time:</strong> ${departureTime}<br><br>
-                    <strong>🚌 Arrival time:</strong> ${arrivalTime}<br>
-                    <strong>👤 Booking off time:</strong> ${bookingOffTime}<br>
-                    <strong>📅 Arrives:</strong> ${dayText}
-                `;
-                document.getElementById('result').style.display = 'block';
-                
-            } catch (error) {
-                showError('Error calculating departure times. Please check your inputs.');
-            }
-        });
-        
-        // Overtime calculation
-        document.getElementById('overtimeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const bookingOnTime = document.getElementById('overtimeBookingOn').value;
-            const bookingOffTime = document.getElementById('overtimeBookingOff').value;
-            
-            // Clear previous results
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            
-            // Validation
-            if (!bookingOnTime) {
-                showError('Please select booking on time');
-                return;
-            }
-            
-            if (!bookingOffTime) {
-                showError('Please select booking off time');
-                return;
-            }
-            
-            // Calculate overtime
-            try {
-                const [onHours, onMinutes] = bookingOnTime.split(':').map(Number);
-                const [offHours, offMinutes] = bookingOffTime.split(':').map(Number);
-                
-                // Convert to minutes from midnight
-                const onTimeInMinutes = onHours * 60 + onMinutes;
-                const offTimeInMinutes = offHours * 60 + offMinutes;
-                
-                // Calculate total work time
-                let totalWorkMinutes;
-                if (offTimeInMinutes >= onTimeInMinutes) {
-                    // Same day
-                    totalWorkMinutes = offTimeInMinutes - onTimeInMinutes;
-                } else {
-                    // Next day
-                    totalWorkMinutes = (24 * 60) - onTimeInMinutes + offTimeInMinutes;
-                }
-                
-                // Standard working day: 7 hours 48 minutes = 468 minutes
-                const standardWorkMinutes = 7 * 60 + 48; // 468 minutes
-                
-                // Calculate overtime
-                const overtimeMinutes = totalWorkMinutes - standardWorkMinutes;
-                
-                if (overtimeMinutes <= 0) {
-                    // No overtime
-                    const underTimeMinutes = Math.abs(overtimeMinutes);
-                    const underTimeHours = Math.floor(underTimeMinutes / 60);
-                    const underTimeMins = underTimeMinutes % 60;
-                    
-                    let underTimeDisplay = '';
-                    if (underTimeHours > 0 && underTimeMins > 0) {
-                        underTimeDisplay = `${underTimeHours} hours ${underTimeMins} minutes`;
-                    } else if (underTimeHours > 0) {
-                        underTimeDisplay = `${underTimeHours} hours`;
-                    } else {
-                        underTimeDisplay = `${underTimeMins} minutes`;
-                    }
-                    
-                    // Display result
-                    document.getElementById('resultTitle').textContent = 'No Overtime';
-                    document.getElementById('resultTime').textContent = '0:00';
-                    document.getElementById('resultDetails').innerHTML = `
-                        <strong>Booking on:</strong> ${bookingOnTime}<br>
-                        <strong>Booking off:</strong> ${bookingOffTime}<br>
-                        <strong>Total work time:</strong> ${Math.floor(totalWorkMinutes / 60)}:${(totalWorkMinutes % 60).toString().padStart(2, '0')}<br>
-                        <strong>Standard day:</strong> 7:48<br>
-                        <span style="color: #34a853; font-weight: 500;">✅ Under time by ${underTimeDisplay}</span>
-                    `;
-                } else {
-                    // Has overtime
-                    const overtimeHours = Math.floor(overtimeMinutes / 60);
-                    const overtimeMins = overtimeMinutes % 60;
-                    
-                    let overtimeDisplay = '';
-                    if (overtimeHours > 0 && overtimeMins > 0) {
-                        overtimeDisplay = `${overtimeHours} hours ${overtimeMins} minutes`;
-                    } else if (overtimeHours > 0) {
-                        overtimeDisplay = `${overtimeHours} hours`;
-                    } else {
-                        overtimeDisplay = `${overtimeMins} minutes`;
-                    }
-                    
-                    // Display result
-                    document.getElementById('resultTitle').textContent = 'Overtime';
-                    document.getElementById('resultTime').textContent = `${overtimeHours}:${overtimeMins.toString().padStart(2, '0')}`;
-                    document.getElementById('resultDetails').innerHTML = `
-                        <strong>Booking on:</strong> ${bookingOnTime}<br>
-                        <strong>Booking off:</strong> ${bookingOffTime}<br>
-                        <strong>Total work time:</strong> ${Math.floor(totalWorkMinutes / 60)}:${(totalWorkMinutes % 60).toString().padStart(2, '0')}<br>
-                        <strong>Standard day:</strong> 7:48<br>
-                        <span style="color: #d93025; font-weight: 500;">⚠️ Overtime: ${overtimeDisplay}</span>
-                    `;
-                }
-                
-                document.getElementById('result').style.display = 'block';
-                
-            } catch (error) {
-                showError('Error calculating overtime. Please check your inputs.');
-            }
-        });
-        
-        function showError(message) {
-            document.getElementById('error').textContent = message;
-            document.getElementById('error').style.display = 'block';
-        }
-        
-        // Set current time as default
-        const now = new Date();
-        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        document.getElementById('bookingOnTime').value = currentTime;
-        document.getElementById('nextDayBookingTime').value = currentTime;
-        document.getElementById('arrivalTime').value = currentTime;
-        document.getElementById('departureTime').value = currentTime;
-        document.getElementById('overtimeBookingOn').value = currentTime;
-        document.getElementById('overtimeBookingOff').value = currentTime;
-        
-        // Add some nice animations
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.querySelector('.calculator-container');
-            container.style.opacity = '0';
-            container.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                container.style.transition = 'all 0.6s ease';
-                container.style.opacity = '1';
-                container.style.transform = 'translateY(0)';
-            }, 100);
-        });
-    </script>
+    <div class="mode-selector">
+      <button id="bookingMode" class="mode-btn active" type="button">Booking Off</button>
+      <button id="restMode" class="mode-btn" type="button">Rest Period</button>
+      <button id="taxiMode" class="mode-btn" type="button">Taxi Journey</button>
+      <button id="departureMode" class="mode-btn" type="button">Departure Time</button>
+      <button id="overtimeMode" class="mode-btn" type="button">Overtime</button>
+    </div>
+
+    <!-- Booking Off Time Mode -->
+    <form id="bookingForm" class="calculator-mode active">
+      <div class="form-group">
+        <label for="bookingOnTime">Booking On Time</label>
+        <input type="time" id="bookingOnTime" required />
+      </div>
+
+      <div class="form-group">
+        <label>Hours Worked</label>
+        <div class="time-inputs">
+          <div class="time-input-group">
+            <input type="number" id="hoursWorked" min="0" max="23" placeholder="0" inputmode="numeric" />
+            <label for="hoursWorked">Hours</label>
+          </div>
+          <div class="time-input-group">
+            <input type="number" id="minutesWorked" min="0" max="59" placeholder="0" inputmode="numeric" />
+            <label for="minutesWorked">Minutes</label>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="calculate-btn">Calculate Booking Off Time</button>
+    </form>
+
+    <!-- Rest Period Mode -->
+    <form id="restForm" class="calculator-mode">
+      <div class="form-group">
+        <label for="nextDayBookingTime">Next Day Booking On Time</label>
+        <input type="time" id="nextDayBookingTime" required />
+      </div>
+
+      <div class="form-group">
+        <label>Driver Duty Type</label>
+        <div class="duty-selector">
+          <label class="duty-option">
+            <input type="radio" name="dutyType" value="driving" required />
+            <span class="duty-label">🚗 Driving Duties (12 hours rest)</span>
+          </label>
+          <label class="duty-option">
+            <input type="radio" name="dutyType" value="non-driving" required />
+            <span class="duty-label">📋 Non-Driving Duties (9 hours rest)</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="calculate-btn">Calculate Previous Day Booking Off Time</button>
+    </form>
+
+    <!-- Taxi Journey Mode -->
+    <form id="taxiForm" class="calculator-mode">
+      <div class="form-group">
+        <label for="arrivalTime">Required Arrival Time</label>
+        <input type="time" id="arrivalTime" required />
+      </div>
+
+      <div class="form-group">
+        <label for="fromDepot">From Depot</label>
+        <select id="fromDepot" required>
+          <option value="">Select departure depot</option>
+          <option value="cork">Cork</option>
+          <option value="mallow">Mallow</option>
+          <option value="tralee">Tralee</option>
+          <option value="thurles">Thurles</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="toDepot">To Depot</label>
+        <select id="toDepot" required>
+          <option value="">Select destination depot</option>
+          <option value="cork">Cork</option>
+          <option value="mallow">Mallow</option>
+          <option value="tralee">Tralee</option>
+          <option value="thurles">Thurles</option>
+        </select>
+      </div>
+
+      <button type="submit" class="calculate-btn">Calculate Taxi & Driver Times</button>
+    </form>
+
+    <!-- Departure Time Mode -->
+    <form id="departureForm" class="calculator-mode">
+      <div class="form-group">
+        <label for="departureTime">Departure Time</label>
+        <input type="time" id="departureTime" required />
+      </div>
+
+      <div class="form-group">
+        <label for="departureFromDepot">From Depot</label>
+        <select id="departureFromDepot" required>
+          <option value="">Select departure depot</option>
+          <option value="cork">Cork</option>
+          <option value="mallow">Mallow</option>
+          <option value="tralee">Tralee</option>
+          <option value="thurles">Thurles</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="departureToDepot">To Depot</label>
+        <select id="departureToDepot" required>
+          <option value="">Select destination depot</option>
+          <option value="cork">Cork</option>
+          <option value="mallow">Mallow</option>
+          <option value="tralee">Tralee</option>
+          <option value="thurles">Thurles</option>
+        </select>
+      </div>
+
+      <button type="submit" class="calculate-btn">Calculate Arrival & Booking Off Time</button>
+    </form>
+
+    <!-- Overtime Mode -->
+    <form id="overtimeForm" class="calculator-mode">
+      <div class="form-group">
+        <label for="overtimeBookingOn">Booking On Time</label>
+        <input type="time" id="overtimeBookingOn" required />
+      </div>
+
+      <div class="form-group">
+        <label for="overtimeBookingOff">Booking Off Time</label>
+        <input type="time" id="overtimeBookingOff" required />
+      </div>
+
+      <button type="submit" class="calculate-btn">Calculate Overtime</button>
+    </form>
+
+    <div id="result" class="result" aria-live="polite">
+      <h3 id="resultTitle">Result</h3>
+      <div id="resultTime" class="result-time"></div>
+      <div id="resultDetails" class="result-details"></div>
+    </div>
+
+    <div id="error" class="error" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Helpers
+    // ---------------------------
+    const MINUTES_PER_DAY = 24 * 60;
+
+    function mod(n, m) {
+      return ((n % m) + m) % m; // 0..m-1
+    }
+
+    function toMinutes(hhmm) {
+      const [h, m] = hhmm.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function fromMinutes(total) {
+      const t = mod(total, MINUTES_PER_DAY);
+      const h = Math.floor(t / 60);
+      const m = t % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function dayOffsetLabel(totalMinutes) {
+      if (totalMinutes < 0) return 'previous day';
+      if (totalMinutes >= MINUTES_PER_DAY) return 'next day';
+      return 'same day';
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+    }
+
+    function clearMessages() {
+      document.getElementById('result').style.display = 'none';
+      document.getElementById('error').style.display = 'none';
+    }
+
+    function showResult(title, time, detailsHtml) {
+      document.getElementById('resultTitle').textContent = title;
+      document.getElementById('resultTime').textContent = time;
+      document.getElementById('resultDetails').innerHTML = detailsHtml; // controlled inputs
+      document.getElementById('result').style.display = 'block';
+    }
+
+    const depotNames = {
+      cork: 'Cork',
+      mallow: 'Mallow',
+      tralee: 'Tralee',
+      thurles: 'Thurles'
+    };
+
+    // Journey times in minutes
+    const journeyTimes = {
+      'cork-mallow': 30,
+      'mallow-cork': 30,
+      'cork-tralee': 90,
+      'tralee-cork': 90,
+      'mallow-tralee': 60,
+      'tralee-mallow': 60,
+
+      // Thurles routes (per your spec)
+      'cork-thurles': 75,     // 1h 15m
+      'thurles-cork': 75,
+      'mallow-thurles': 75,   // 1h 15m
+      'thurles-mallow': 75,
+      'tralee-thurles': 140,  // 2h 20m
+      'thurles-tralee': 140
+    };
+
+    function getJourneyMinutes(fromDepot, toDepot) {
+      return journeyTimes[`${fromDepot}-${toDepot}`];
+    }
+
+    // ---------------------------
+    // Mode switching
+    // ---------------------------
+    const modes = ['booking', 'rest', 'taxi', 'departure', 'overtime'];
+
+    function switchMode(mode) {
+      modes.forEach(m => {
+        document.getElementById(`${m}Mode`).classList.toggle('active', m === mode);
+        document.getElementById(`${m}Form`).classList.toggle('active', m === mode);
+      });
+      clearMessages();
+    }
+
+    document.getElementById('bookingMode').addEventListener('click', () => switchMode('booking'));
+    document.getElementById('restMode').addEventListener('click', () => switchMode('rest'));
+    document.getElementById('taxiMode').addEventListener('click', () => switchMode('taxi'));
+    document.getElementById('departureMode').addEventListener('click', () => switchMode('departure'));
+    document.getElementById('overtimeMode').addEventListener('click', () => switchMode('overtime'));
+
+    // ---------------------------
+    // Rest duty selection styling (no :has)
+    // ---------------------------
+    document.querySelectorAll('input[name="dutyType"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('.duty-option').forEach(lbl => lbl.classList.remove('selected'));
+        const parent = radio.closest('.duty-option');
+        if (parent) parent.classList.add('selected');
+      });
+    });
+
+    // ---------------------------
+    // Booking Off Time
+    // ---------------------------
+    document.getElementById('bookingForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearMessages();
+
+      const bookingOnTime = document.getElementById('bookingOnTime').value;
+      const hoursWorked = parseInt(document.getElementById('hoursWorked').value, 10) || 0;
+      const minutesWorked = parseInt(document.getElementById('minutesWorked').value, 10) || 0;
+
+      if (!bookingOnTime) return showError('Please select a booking on time');
+      if (hoursWorked < 0 || hoursWorked > 23) return showError('Hours must be between 0 and 23');
+      if (minutesWorked < 0 || minutesWorked > 59) return showError('Minutes must be between 0 and 59');
+      if (hoursWorked === 0 && minutesWorked === 0) return showError('Please enter at least some hours or minutes');
+
+      const startM = toMinutes(bookingOnTime);
+      const workedM = hoursWorked * 60 + minutesWorked;
+      const endM = startM + workedM;
+
+      const bookingOff = fromMinutes(endM);
+      const dayText = dayOffsetLabel(endM);
+
+      let workTimeDisplay = '';
+      if (hoursWorked > 0 && minutesWorked > 0) workTimeDisplay = `${hoursWorked} hours ${minutesWorked} minutes`;
+      else if (hoursWorked > 0) workTimeDisplay = `${hoursWorked} hours`;
+      else workTimeDisplay = `${minutesWorked} minutes`;
+
+      showResult(
+        'Booking Off Time',
+        bookingOff,
+        `
+          <strong>Started:</strong> ${bookingOnTime}<br>
+          <strong>Worked:</strong> ${workTimeDisplay}<br>
+          ${
+            dayText === 'next day'
+              ? '<span style="color:#d93025;font-weight:500;">⚠️ Finishes next day</span>'
+              : '<span style="color:#34a853;font-weight:500;">✅ Finishes same day</span>'
+          }
+        `
+      );
+    });
+
+    // ---------------------------
+    // Rest Period
+    // ---------------------------
+    document.getElementById('restForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearMessages();
+
+      const nextDayBookingTime = document.getElementById('nextDayBookingTime').value;
+      const dutyType = document.querySelector('input[name="dutyType"]:checked');
+
+      if (!nextDayBookingTime) return showError('Please select next day booking on time');
+      if (!dutyType) return showError('Please select driver duty type');
+
+      const nextM = toMinutes(nextDayBookingTime);
+      const restHours = dutyType.value === 'driving' ? 12 : 9;
+      const offM = nextM - (restHours * 60);
+
+      const bookingOff = fromMinutes(offM);
+      const dayText = dayOffsetLabel(offM); // will be "previous day" or "same day" in most cases
+
+      showResult(
+        'Previous Day Booking Off Time',
+        bookingOff,
+        `
+          <strong>Next day starts:</strong> ${nextDayBookingTime}<br>
+          <strong>Duty type:</strong> ${dutyType.value === 'driving' ? '🚗 Driving' : '📋 Non-Driving'}<br>
+          <strong>Required rest:</strong> ${restHours} hours<br>
+          <strong>Must finish:</strong> ${dayText} at ${bookingOff}
+        `
+      );
+    });
+
+    // ---------------------------
+    // Taxi Journey
+    // ---------------------------
+    document.getElementById('taxiForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearMessages();
+
+      const arrivalTime = document.getElementById('arrivalTime').value;
+      const fromDepot = document.getElementById('fromDepot').value;
+      const toDepot = document.getElementById('toDepot').value;
+
+      if (!arrivalTime) return showError('Please select required arrival time');
+      if (!fromDepot) return showError('Please select departure depot');
+      if (!toDepot) return showError('Please select destination depot');
+      if (fromDepot === toDepot) return showError('Departure and destination depots cannot be the same');
+
+      const journeyM = getJourneyMinutes(fromDepot, toDepot);
+      if (!journeyM && journeyM !== 0) return showError('Invalid depot combination');
+
+      const arrivalM = toMinutes(arrivalTime);
+      const taxiDepartM = arrivalM - journeyM;
+      const driverBookM = taxiDepartM - 20;
+
+      const taxiDepartureTime = fromMinutes(taxiDepartM);
+      const driverBookingTime = fromMinutes(driverBookM);
+      const dayText = dayOffsetLabel(driverBookM);
+
+      showResult(
+        'Booking On Time',
+        driverBookingTime,
+        `
+          <strong>Route:</strong> ${depotNames[fromDepot]} → ${depotNames[toDepot]}<br>
+          <strong>Journey time:</strong> ${journeyM} minutes<br>
+          <strong>Arrival required:</strong> ${arrivalTime}<br><br>
+          <strong>🚕 Taxi booking time is:</strong> ${taxiDepartureTime}<br>
+          <strong>👤 Driver booking on time is:</strong> ${driverBookingTime}<br>
+          <strong>📅 Driver must book on:</strong> ${dayText}
+        `
+      );
+    });
+
+    // ---------------------------
+    // Departure Time
+    // ---------------------------
+    document.getElementById('departureForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearMessages();
+
+      const departureTime = document.getElementById('departureTime').value;
+      const fromDepot = document.getElementById('departureFromDepot').value;
+      const toDepot = document.getElementById('departureToDepot').value;
+      const bookingOffMinutes = 10; // fixed after arrival
+
+      if (!departureTime) return showError('Please select departure time');
+      if (!fromDepot) return showError('Please select departure depot');
+      if (!toDepot) return showError('Please select destination depot');
+      if (fromDepot === toDepot) return showError('Departure and destination depots cannot be the same');
+
+      const journeyM = getJourneyMinutes(fromDepot, toDepot);
+      if (!journeyM && journeyM !== 0) return showError('Invalid depot combination');
+
+      const departM = toMinutes(departureTime);
+      const arrivalM = departM + journeyM;
+      const bookOffM = arrivalM + bookingOffMinutes;
+
+      const arrivalTimeText = fromMinutes(arrivalM);
+      const bookingOffText = fromMinutes(bookOffM);
+
+      const dayText = dayOffsetLabel(arrivalM);
+
+      showResult(
+        'Booking Off Time',
+        bookingOffText,
+        `
+          <strong>Route:</strong> ${depotNames[fromDepot]} → ${depotNames[toDepot]}<br>
+          <strong>Journey time:</strong> ${journeyM} minutes<br>
+          <strong>Departure time:</strong> ${departureTime}<br><br>
+          <strong>🚌 Arrival time:</strong> ${arrivalTimeText}<br>
+          <strong>👤 Booking off time:</strong> ${bookingOffText}<br>
+          <strong>📅 Arrives:</strong> ${dayText}
+        `
+      );
+    });
+
+    // ---------------------------
+    // Overtime
+    // ---------------------------
+    document.getElementById('overtimeForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearMessages();
+
+      const bookingOnTime = document.getElementById('overtimeBookingOn').value;
+      const bookingOffTime = document.getElementById('overtimeBookingOff').value;
+
+      if (!bookingOnTime) return showError('Please select booking on time');
+      if (!bookingOffTime) return showError('Please select booking off time');
+
+      const onM = toMinutes(bookingOnTime);
+      const offM = toMinutes(bookingOffTime);
+
+      // Work duration in minutes, handling next-day wrap
+      const totalWorkM = (offM >= onM) ? (offM - onM) : (MINUTES_PER_DAY - onM + offM);
+
+      // Standard working day: 7:48 = 468 minutes
+      const standardM = 7 * 60 + 48;
+      const overtimeM = totalWorkM - standardM;
+
+      const totalWorkText = `${Math.floor(totalWorkM / 60)}:${String(totalWorkM % 60).padStart(2, '0')}`;
+
+      if (overtimeM <= 0) {
+        const underM = Math.abs(overtimeM);
+        const underH = Math.floor(underM / 60);
+        const underMin = underM % 60;
+
+        const underText = underH > 0
+          ? `${underH} hours${underMin ? ` ${underMin} minutes` : ''}`
+          : `${underMin} minutes`;
+
+        showResult(
+          'No Overtime',
+          '0:00',
+          `
+            <strong>Booking on:</strong> ${bookingOnTime}<br>
+            <strong>Booking off:</strong> ${bookingOffTime}<br>
+            <strong>Total work time:</strong> ${totalWorkText}<br>
+            <strong>Standard day:</strong> 7:48<br>
+            <span style="color:#34a853;font-weight:500;">✅ Under time by ${underText}</span>
+          `
+        );
+        return;
+      }
+
+      const otH = Math.floor(overtimeM / 60);
+      const otMin = overtimeM % 60;
+      const otText = otH > 0
+        ? `${otH} hours${otMin ? ` ${otMin} minutes` : ''}`
+        : `${otMin} minutes`;
+
+      showResult(
+        'Overtime',
+        `${otH}:${String(otMin).padStart(2, '0')}`,
+        `
+          <strong>Booking on:</strong> ${bookingOnTime}<br>
+          <strong>Booking off:</strong> ${bookingOffTime}<br>
+          <strong>Total work time:</strong> ${totalWorkText}<br>
+          <strong>Standard day:</strong> 7:48<br>
+          <span style="color:#d93025;font-weight:500;">⚠️ Overtime: ${otText}</span>
+        `
+      );
+    });
+
+    // ---------------------------
+    // Defaults (set all to current time)
+    // ---------------------------
+    const now = new Date();
+    const currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+    document.getElementById('bookingOnTime').value = currentTime;
+    document.getElementById('nextDayBookingTime').value = currentTime;
+    document.getElementById('arrivalTime').value = currentTime;
+    document.getElementById('departureTime').value = currentTime;
+    document.getElementById('overtimeBookingOn').value = currentTime;
+    document.getElementById('overtimeBookingOff').value = currentTime;
+
+    // ---------------------------
+    // Simple entrance animation
+    // ---------------------------
+    document.addEventListener('DOMContentLoaded', function () {
+      const container = document.querySelector('.calculator-container');
+      container.style.opacity = '0';
+      container.style.transform = 'translateY(20px)';
+
+      setTimeout(() => {
+        container.style.transition = 'all 0.6s ease';
+        container.style.opacity = '1';
+        container.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  </script>
 </body>
 </html>
